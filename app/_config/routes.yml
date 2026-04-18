@@ -1,0 +1,10 @@
+---
+Name: approutes
+After:
+  - '#rootroutes'
+  - '#coreroutes'
+---
+SilverStripe\Control\Director:
+  rules:
+    '': 'App\Controllers\MainController'
+    'app': 'App\Controllers\MainController'

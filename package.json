@@ -1,0 +1,17 @@
+{
+  "name": "nopages-silverstripe-template",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Adiwidjaja Teamworks GmbH",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.89.2",
+    "vite": "^6"
+  }
+}

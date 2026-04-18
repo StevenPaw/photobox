@@ -1,0 +1,18 @@
+@use "fonts";
+@use "normalize";
+@use "variables" as *;
+@use "typography";
+
+@use "layout/footer.scss";
+@use "layout/header.scss";
+
+@use "layout/textimage.scss";
+@use "layout/text.scss";
+
+.section {
+    max-width: $maxWidth;
+}
+
+.section_content{
+    max-width: $maxWidthContent;
+}
