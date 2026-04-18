@@ -1,0 +1,123 @@
+#ddev-generated
+# If you remove the ddev-generated line above you
+# are responsible for maintaining this file. DDEV will not then
+# update it, for example if you add `additional_hostnames`, etc.
+
+http:
+  routers:
+    nopages-web-80-http:
+      entrypoints:
+        - http-33000
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-web-80"
+      tls: false
+      # middlewares:
+      #   - "nopages-redirectHttps"
+    nopages-web-8025-http:
+      entrypoints:
+        - http-8025
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-web-8025"
+      tls: false
+      # middlewares:
+      #   - "nopages-redirectHttps"
+    nopages-web-5173-http:
+      entrypoints:
+        - http-5172
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-web-5173"
+      tls: false
+      # middlewares:
+      #   - "nopages-redirectHttps"
+    nopages-xhgui-80-http:
+      entrypoints:
+        - http-8143
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-xhgui-80"
+      tls: false
+      # middlewares:
+      #   - "nopages-redirectHttps"
+    
+    
+    
+    
+    nopages-web-80-https:
+      entrypoints:
+        - http-443
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-web-80"
+      
+      tls: true
+      
+    nopages-web-8025-https:
+      entrypoints:
+        - http-8026
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-web-8025"
+      
+      tls: true
+      
+    nopages-web-5173-https:
+      entrypoints:
+        - http-5173
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-web-5173"
+      
+      tls: true
+      
+    
+    nopages-xhgui-80-https:
+      entrypoints:
+        - http-8142
+      rule: HostRegexp(`^nopages\.ddev\.site$`)
+      
+      service: "nopages-xhgui-80"
+      
+      tls: true
+      
+    
+
+  middlewares:
+    nopages-redirectHttps:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    nopages-web-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-nopages-web:80
+        
+    nopages-web-8025:
+      loadbalancer:
+        servers:
+          - url: http://ddev-nopages-web:8025
+        
+    nopages-web-5173:
+      loadbalancer:
+        servers:
+          - url: http://ddev-nopages-web:5173
+        
+    
+    
+    
+    nopages-xhgui-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-nopages-xhgui:80
+        
+    
+    
+
+tls:
+  certificates:
+    - certFile: /mnt/ddev-global-cache/traefik/certs/nopages.crt
+      keyFile: /mnt/ddev-global-cache/traefik/certs/nopages.key

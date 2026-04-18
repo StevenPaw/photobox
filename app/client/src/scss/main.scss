@@ -3,11 +3,11 @@
 @use "variables" as *;
 @use "typography";
 
-@use "layout/footer.scss";
-@use "layout/header.scss";
-
-@use "layout/textimage.scss";
-@use "layout/text.scss";
+// Views
+@use "views/eventsetup";
+@use "views/photocapture";
+@use "views/personselection";
+@use "views/success";
 
 .section {
     max-width: $maxWidth;

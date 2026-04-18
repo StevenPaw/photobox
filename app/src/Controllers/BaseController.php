@@ -5,6 +5,10 @@ namespace App\Controllers;
 use SilverStripe\Control\Controller;
 use SilverStripe\View\SSViewer;
 
+/**
+ * Class \App\Controllers\BaseController
+ *
+ */
 class BaseController extends Controller
 {
     public function getViewer($action)

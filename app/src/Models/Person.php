@@ -1,30 +1,42 @@
 <?php
 namespace App\Models;
 
+use App\Models\Event;
 use SilverStripe\Assets\Image;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\Security\Permission;
 
 /**
- * Class \App\Models\Entry
+ * Class \App\Models\Person
  *
- * @property ?string $Name
+ * @property ?string $FirstName
+ * @property ?string $LastName
+ * @property ?string $Hash
+ * @property int $ParentID
  * @property int $ImageID
+ * @method \App\Models\Event Parent()
  * @method \SilverStripe\Assets\Image Image()
+ * @method \SilverStripe\ORM\ManyManyList|\App\Models\Photo[] Photos()
  * @mixin \SilverStripe\Assets\Shortcodes\FileLinkTracking
  * @mixin \SilverStripe\Assets\AssetControlExtension
  * @mixin \SilverStripe\Versioned\RecursivePublishable
  * @mixin \SilverStripe\Versioned\VersionedStateExtension
  */
-class Entry extends DataObject
+class Person extends DataObject
 {
     private static $db = [
-        'Name' => 'Varchar(255)',
+        "FirstName" => "Varchar(255)",
+        "LastName" => "Varchar(255)",
+        "Hash" => "Varchar(255)",
     ];
 
     private static $has_one = [
-        'Image' => Image::class,
+        "Parent" => Event::class,
+        "Image" => Image::class,
+    ];
+
+    private static $belongs_many_many = [
+        "Photos" => Photo::class,
     ];
 
     private static $owns = [
@@ -32,30 +44,36 @@ class Entry extends DataObject
     ];
 
     private static $cascade_deletes = [
-        'Image',
     ];
 
     private static $summary_fields = [
-        'FormattedDate' => 'Datum',
-        'Name' => 'Name',
-        'Thumbnail' => 'Bild',
+        "Image.CMSThumbnail" => "Image",
+        "Title" => "Name",
     ];
 
-    private static $default_sort = 'Created DESC';
-    private static $table_name = 'Entry';
+    private static $default_sort = 'FirstName ASC, LastName ASC';
+    private static $table_name = 'Person';
 
-    public function FormattedDate()
+    public function getCMSFields()
     {
-        return $this->dbObject('Created')->Format('dd.MM.yyyy');
+        $fields = parent::getCMSFields();
+        $fields->removeByName('ParentID');
+        return $fields;
     }
 
-    public function Thumbnail()
+    public function getTitle()
     {
-        if($image = $this->Image()) {
-            $thumb = $image->CMSThumbnail()->forTemplate();
-            return DBField::create_field('HTMLText',"<a onClick=\"event.stopPropagation()\" href=\"$image->URL\" target=\"_blank\">$thumb</a><br/><a onClick=\"event.stopPropagation()\" href=\"$image->URL\" target=\"_blank\" download>Download</a>");
+        return trim($this->FirstName . " " . $this->LastName);
+    }
+
+    protected function onBeforeWrite()
+    {
+        parent::onBeforeWrite();
+        if (!$this->Hash) {
+            $this->Hash = md5(uniqid($this->Title, true));
         }
     }
+
 
     public function canView($member = null)
     {
@@ -66,7 +84,6 @@ class Entry extends DataObject
     {
         return Permission::check('CMS_ACCESS_App\Admin\EntryAdmin', 'any', $member);
     }
-
 
     public function canEdit($member = null)
     {
