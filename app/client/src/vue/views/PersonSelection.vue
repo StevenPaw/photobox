@@ -272,7 +272,11 @@ const savePhotoToBackend = async (personIds) => {
     );
 
     if (result.success) {
-      // Reset and go back to capture or setup
+      // Save photo hash for QR code generation
+      if (result.hash) {
+        store.setSavedPhotoHash(result.hash);
+      }
+      // Go to success page
       router.push('/success');
     } else {
       alert('Fehler beim Speichern des Fotos.');

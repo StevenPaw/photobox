@@ -9,6 +9,7 @@ export const usePhotoboxStore = defineStore('photobox', {
         currentFilterIndex: 0,
         capturedPhoto: null,
         selectedPersons: [],
+        savedPhotoHash: null,
     }),
 
     getters: {
@@ -144,6 +145,10 @@ export const usePhotoboxStore = defineStore('photobox', {
             }
         },
 
+        setSavedPhotoHash(hash) {
+            this.savedPhotoHash = hash;
+        },
+
         reset() {
             this.stopCamera();
             this.selectedEvent = null;
@@ -152,6 +157,7 @@ export const usePhotoboxStore = defineStore('photobox', {
             this.currentFilterIndex = 0;
             this.capturedPhoto = null;
             this.selectedPersons = [];
+            this.savedPhotoHash = null;
         },
     },
 });

@@ -235,6 +235,10 @@ const continueToPersonSelection = async () => {
       );
 
       if (result.success) {
+        // Save photo hash for QR code generation
+        if (result.hash) {
+          store.setSavedPhotoHash(result.hash);
+        }
         router.push('/success');
       } else {
         alert('Fehler beim Speichern des Fotos.');

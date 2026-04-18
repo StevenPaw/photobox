@@ -9,4 +9,5 @@ SilverStripe\Control\Director:
     '': 'App\Controllers\MainController'
     'app': 'App\Controllers\MainController'
     'photobox//$Action//$ID/$Name': 'App\Controllers\PhotoboxController'
+    'download/$Hash': 'App\Controllers\PhotoDownloadController'
     'api//$Action//$ID/$Name': 'App\Controllers\ApiController'
