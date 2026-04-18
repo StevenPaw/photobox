@@ -12,6 +12,7 @@ use SilverStripe\Security\Permission;
  * @property ?string $Title
  * @property ?string $Hash
  * @property ?string $EventDate
+ * @property bool $UsePersonRecognition
  * @method \SilverStripe\ORM\DataList|\App\Models\Photo[] Photos()
  * @method \SilverStripe\ORM\DataList|\App\Models\Person[] Persons()
  * @method \SilverStripe\ORM\ManyManyList|\App\Models\FilterSet[] UsedFilterSet()
@@ -26,6 +27,7 @@ class Event extends DataObject
         'Title' => 'Varchar(255)',
         'Hash' => 'Varchar(255)',
         'EventDate' => 'Date',
+        'UsePersonRecognition' => 'Boolean',
     ];
 
     private static $has_many = [

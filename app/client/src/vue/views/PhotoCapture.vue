@@ -33,12 +33,6 @@
           </button>
         </div>
 
-        <!-- Filter Info -->
-        <div class="filter-info" v-if="currentFilter">
-          <span class="filter-title">{{ currentFilter.Title }}</span>
-          <span class="filter-counter">{{ store.currentFilterIndex + 1 }} / {{ store.availableFilters.length }}</span>
-        </div>
-
         <!-- Countdown Display -->
         <div v-if="countdown > 0" class="countdown">
           {{ countdown }}
@@ -220,9 +214,40 @@ const retakePhoto = async () => {
   attachCameraStream();
 };
 
-const continueToPersonSelection = () => {
+const continueToPersonSelection = async () => {
   store.setCapturedPhoto(capturedImage.value);
-  router.push('/person-selection');
+
+  // Check if event has persons
+  if (!store.selectedEvent) {
+    router.push('/person-selection');
+    return;
+  }
+
+  try {
+    const persons = await store.fetchEventPersons(store.selectedEvent.ID);
+
+    // If no persons exist, skip person selection and save directly
+    if (persons.length === 0) {
+      const result = await store.savePhoto(
+        store.selectedEvent.ID,
+        capturedImage.value,
+        []
+      );
+
+      if (result.success) {
+        router.push('/success');
+      } else {
+        alert('Fehler beim Speichern des Fotos.');
+      }
+    } else {
+      // Persons exist, go to person selection
+      router.push('/person-selection');
+    }
+  } catch (error) {
+    console.error('Fehler beim Prüfen der Personen:', error);
+    // Fallback to person selection page
+    router.push('/person-selection');
+  }
 };
 
 const goBack = () => {
