@@ -9,6 +9,12 @@
 @use "views/personselection";
 @use "views/success";
 
+body {
+    background: linear-gradient(135deg, #00294C 0%, #00549e 100%);
+    min-height: 100dvh;
+    width: 100dvw;
+}
+
 .section {
     max-width: $maxWidth;
 }
