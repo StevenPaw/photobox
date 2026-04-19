@@ -118,6 +118,7 @@ class APIController extends BaseController
             $data[] = [
                 'ID' => $event->ID,
                 'Hash' => $event->Hash,
+                'Title' => $event->Title,
                 'EventDate' => $event->EventDate,
                 'FormattedDate' => $event->FormattedDate(),
                 'UsePersonRecognition' => (bool)$event->UsePersonRecognition,

@@ -10,7 +10,7 @@
           <select v-model="selectedEventId" @change="onEventChange" class="event-select">
             <option value="">Bitte Event auswählen...</option>
             <option v-for="event in events" :key="event.ID" :value="event.ID">
-              {{ event.FormattedDate }} - {{ event.Hash }}
+              {{ event.FormattedDate }} - {{ event.Title }}
             </option>
           </select>
         </div>
