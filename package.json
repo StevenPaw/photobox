@@ -6,9 +6,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node copy-pwa-files.js",
     "watch": "vite build --watch",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "copy-pwa": "node copy-pwa-files.js"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

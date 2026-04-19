@@ -3,10 +3,24 @@
     <head>
         <% base_tag %>
         $MetaTags(false)
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta charset="utf-8">
         <title>Photobox</title>
+
+        <!-- PWA Meta Tags -->
+        <meta name="theme-color" content="#4E9DAE">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+        <meta name="apple-mobile-web-app-title" content="Photobox">
+        <meta name="mobile-web-app-capable" content="yes">
+
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="/manifest.json">
+
+        <!-- Kamera-Berechtigung -->
+        <meta http-equiv="Permissions-Policy" content="camera=*, microphone=*, geolocation=*">
+
         $ViteClient.RAW
         <link rel="stylesheet" href="$Vite('app/client/src/scss/main.scss')">
         <script type="module" src="$Vite('app/client/src/js/main.js')"></script>

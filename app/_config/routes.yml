@@ -6,8 +6,11 @@ After:
 ---
 SilverStripe\Control\Director:
   rules:
-    '': 'App\Controllers\MainController'
-    'app': 'App\Controllers\MainController'
-    'photobox//$Action//$ID/$Name': 'App\Controllers\PhotoboxController'
+    '': 'App\Controllers\PhotoboxController'
+    'photobox': 'App\Controllers\PhotoboxController'
+    'photobox//$Action': 'App\Controllers\PhotoboxController'
+    'capture//$Action': 'App\Controllers\PhotoboxController'
+    'person-selection//$Action': 'App\Controllers\PhotoboxController'
+    'success//$Action': 'App\Controllers\PhotoboxController'
     'download/$Hash': 'App\Controllers\PhotoDownloadController'
     'api//$Action//$ID/$Name': 'App\Controllers\ApiController'
