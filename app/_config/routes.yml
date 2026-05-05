@@ -9,6 +9,7 @@ SilverStripe\Control\Director:
     '': 'App\Controllers\PhotoboxController'
     'photobox': 'App\Controllers\PhotoboxController'
     'photobox//$Action': 'App\Controllers\PhotoboxController'
+    'photolist//$Action': 'App\Controllers\PhotolistController'
     'capture//$Action': 'App\Controllers\PhotoboxController'
     'person-selection//$Action': 'App\Controllers\PhotoboxController'
     'success//$Action': 'App\Controllers\PhotoboxController'
