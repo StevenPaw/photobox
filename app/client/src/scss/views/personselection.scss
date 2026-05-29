@@ -1,9 +1,10 @@
 .person-selection {
-    padding: 2rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    max-width: 100dvw;
 
     .selection-container {
         max-width: 1400px;
@@ -86,6 +87,25 @@
         transform: translateY(-2px);
     }
 
+    .person-search {
+        margin-bottom: 1.5rem;
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: #667eea;
+            }
+        }
+    }
+
     .persons-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -118,6 +138,40 @@
     .person-card.auto-detected {
         border-color: #10b981;
         background: #d1fae5;
+    }
+
+    .person-card--new {
+        border: 2px dashed #f59e0b;
+        background: #fffbeb;
+
+        &:hover {
+            background: #fef3c7;
+        }
+
+        &.selected {
+            border-color: #667eea;
+            border-style: solid;
+            background: #eef2ff;
+        }
+    }
+
+    .person-placeholder--new {
+        color: #f59e0b;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        font-size: 2rem;
+        font-weight: 300;
+    }
+
+    .new-badge {
+        display: inline-block;
+        margin-left: 0.25rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        background: #f59e0b;
+        color: white;
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        vertical-align: middle;
     }
 
     .person-card.auto-detected.selected {

@@ -76,7 +76,7 @@ export const usePhotoboxStore = defineStore('photobox', {
             return await response.json();
         },
 
-        async savePhoto(eventId, imageData, personIds = []) {
+        async savePhoto(eventId, imageData, personIds = [], customPersonNames = []) {
             const response = await fetch('/api/photos', {
                 method: 'POST',
                 headers: {
@@ -86,6 +86,7 @@ export const usePhotoboxStore = defineStore('photobox', {
                     eventId,
                     imageData,
                     personIds,
+                    customPersonNames,
                 }),
             });
             return await response.json();

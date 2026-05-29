@@ -18,39 +18,65 @@
           Lade Personen...
         </div>
 
-        <div v-else-if="persons.length === 0" class="no-persons">
-          <p>Keine Personen für dieses Event verfügbar.</p>
-          <button @click="skipPersonSelection" class="btn-skip">
-            Ohne Personen-Auswahl fortfahren
-          </button>
-        </div>
-
-        <div v-else class="persons-grid">
-          <div
-            v-for="person in persons"
-            :key="person.ID"
-            @click="togglePerson(person.ID)"
-            :class="['person-card', { selected: isSelected(person.ID), 'auto-detected': isAutoDetected(person.ID) }]"
-          >
-            <div class="person-image">
-              <img
-                v-if="person.ImageURL"
-                :src="person.ImageURL"
-                :alt="person.Title"
-              />
-              <div v-else class="person-placeholder">
-                {{ getInitials(person) }}
-              </div>
-            </div>
-            <div class="person-name">
-              {{ person.Title }}
-              <span v-if="isAutoDetected(person.ID)" class="auto-badge">🤖</span>
-            </div>
-            <div class="selection-indicator" v-if="isSelected(person.ID)">✓</div>
+        <template v-else>
+          <div class="person-search">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Person suchen oder neu hinzufügen..."
+              class="search-input"
+            />
           </div>
-        </div>
 
-        <div class="actions" v-if="persons.length > 0">
+          <div v-if="persons.length === 0 && !searchQuery.trim()" class="no-persons">
+            <p>Keine Personen für dieses Event verfügbar.</p>
+            <button @click="skipPersonSelection" class="btn-skip">
+              Ohne Personen-Auswahl fortfahren
+            </button>
+          </div>
+
+          <div v-else class="persons-grid">
+            <div
+              v-for="person in filteredPersons"
+              :key="person.ID"
+              @click="togglePerson(person.ID)"
+              :class="['person-card', { selected: isSelected(person.ID), 'auto-detected': isAutoDetected(person.ID) }]"
+            >
+              <div class="person-image">
+                <img
+                  v-if="person.ImageURL"
+                  :src="person.ImageURL"
+                  :alt="person.Title"
+                />
+                <div v-else class="person-placeholder">
+                  {{ getInitials(person) }}
+                </div>
+              </div>
+              <div class="person-name">
+                {{ person.Title }}
+                <span v-if="isAutoDetected(person.ID)" class="auto-badge">🤖</span>
+              </div>
+              <div class="selection-indicator" v-if="isSelected(person.ID)">✓</div>
+            </div>
+
+            <div
+              v-if="newPersonName"
+              @click="toggleCustomPerson(newPersonName)"
+              :class="['person-card', 'person-card--new', { selected: isCustomSelected(newPersonName) }]"
+            >
+              <div class="person-image">
+                <div class="person-placeholder person-placeholder--new">＋</div>
+              </div>
+              <div class="person-name">
+                {{ newPersonName }}
+                <span class="new-badge">Neu</span>
+              </div>
+              <div class="selection-indicator" v-if="isCustomSelected(newPersonName)">✓</div>
+            </div>
+          </div>
+        </template>
+
+        <div class="actions" v-if="!loading">
           <button @click="goBack" class="btn-back">← Zurück</button>
           <button @click="savePhoto" class="btn-save" :disabled="saving">
             {{ saving ? 'Speichere...' : '💾 Foto speichern' }}
@@ -62,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
 import * as faceapi from 'face-api.js';
@@ -78,6 +104,22 @@ const saving = ref(false);
 const recognizing = ref(false);
 const photoImage = ref(null);
 const detectionCanvas = ref(null);
+
+const searchQuery = ref('');
+const selectedCustomNames = ref([]);
+
+const filteredPersons = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!q) return persons.value;
+  return persons.value.filter(p => p.Title.toLowerCase().includes(q));
+});
+
+const newPersonName = computed(() => {
+  const q = searchQuery.value.trim();
+  if (!q) return null;
+  const alreadyExists = persons.value.some(p => p.Title.toLowerCase() === q.toLowerCase());
+  return alreadyExists ? null : q;
+});
 
 let modelsLoaded = false;
 
@@ -268,7 +310,8 @@ const savePhotoToBackend = async (personIds) => {
     const result = await store.savePhoto(
       store.selectedEvent.ID,
       store.capturedPhoto,
-      personIds
+      personIds,
+      selectedCustomNames.value
     );
 
     if (result.success) {
@@ -288,6 +331,17 @@ const savePhotoToBackend = async (personIds) => {
     saving.value = false;
   }
 };
+
+const toggleCustomPerson = (name) => {
+  const index = selectedCustomNames.value.indexOf(name);
+  if (index > -1) {
+    selectedCustomNames.value.splice(index, 1);
+  } else {
+    selectedCustomNames.value.push(name);
+  }
+};
+
+const isCustomSelected = (name) => selectedCustomNames.value.includes(name);
 
 const goBack = () => {
   router.push('/capture');

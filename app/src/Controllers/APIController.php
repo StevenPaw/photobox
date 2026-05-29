@@ -330,6 +330,7 @@ class APIController extends BaseController
         $eventId = $body['eventId'] ?? null;
         $imageData = $body['imageData'] ?? null;
         $personIds = $body['personIds'] ?? [];
+        $customPersonNames = $body['customPersonNames'] ?? [];
 
         if (!$eventId || !$imageData) {
             return $this->jsonResponse(['error' => 'Event ID and image data required'], 400);
@@ -371,7 +372,7 @@ class APIController extends BaseController
 
         $photo->write();
 
-        // Add persons to photo
+        // Add existing persons to photo
         if (!empty($personIds)) {
             foreach ($personIds as $personId) {
                 $person = Person::get()->byID($personId);
@@ -379,6 +380,23 @@ class APIController extends BaseController
                     $photo->Persons()->add($person);
                 }
             }
+        }
+
+        // Create and add new custom persons to photo and event
+        foreach ($customPersonNames as $fullName) {
+            $fullName = trim($fullName);
+            if (!$fullName) {
+                continue;
+            }
+
+            $parts = explode(' ', $fullName, 2);
+            $person = Person::create();
+            $person->FirstName = $parts[0];
+            $person->LastName = $parts[1] ?? '';
+            $person->ParentID = $eventId;
+            $person->write();
+
+            $photo->Persons()->add($person);
         }
 
         return $this->jsonResponse([

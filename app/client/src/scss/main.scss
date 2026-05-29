@@ -12,7 +12,8 @@
 body {
     background: linear-gradient(135deg, #00294C 0%, #00549e 100%);
     min-height: 100dvh;
-    width: 100dvw;
+    max-width: 100dvw;
+
 }
 
 .section {
@@ -25,6 +26,8 @@ body {
 
 .photobox-app {
   min-height: 100dvh;
+  max-width: 100dvw;
+  overflow: hidden;
 }
 
 .fade-enter-active,
