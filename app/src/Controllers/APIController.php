@@ -26,6 +26,7 @@ class APIController extends BaseController
         'events/$ID/filtersets/$FilterSetID' => 'events',
         'events/$ID/filtersets' => 'events',
         'events/$ID/persons' => 'events',
+        'events/$ID/photos' => 'events',
         'events/$ID' => 'events',
         'events' => 'events',
         'filtersets/$ID/filters' => 'filtersets',
@@ -61,6 +62,11 @@ class APIController extends BaseController
         // GET events/{id}/persons
         if ($id && strpos($request->getURL(), '/persons') !== false) {
             return $this->getEventPersons($request, $id);
+        }
+
+        // GET events/{id}/photos
+        if ($id && strpos($request->getURL(), '/photos') !== false) {
+            return $this->getEventPhotos($request, $id);
         }
 
         // GET events/{id}
@@ -321,6 +327,75 @@ class APIController extends BaseController
     }
 
     /**
+     * Get photos of an event, including thumbnail/download URLs and tagged persons.
+     * Only reachable via the event's public Hash (not the numeric ID), since this
+     * is meant to be embedded on external sites and the Hash is the shareable identifier.
+     */
+    private function getEventPhotos(HTTPRequest $request, $hash)
+    {
+        $event = Event::get()->filter('Hash', $hash)->first();
+
+        if (!$event) {
+            return $this->jsonResponse(['error' => 'Event not found'], 404);
+        }
+
+        $data = [];
+        foreach ($event->Photos() as $photo) {
+            if (!$photo->Image()->exists()) {
+                continue;
+            }
+            $data[] = $this->formatPhoto($photo);
+        }
+
+        return $this->jsonResponse($data);
+    }
+
+    /**
+     * Format a photo for the public API, with thumbnail/download URLs and persons
+     */
+    private function formatPhoto(Photo $photo)
+    {
+        $image = $photo->Image();
+        $thumbnailUrl = null;
+        $downloadUrl = null;
+        $fileSize = null;
+        $width = null;
+        $height = null;
+
+        if ($image->exists()) {
+            $thumbnail = $image->ScaleMaxWidth(400);
+            $thumbnailUrl = $thumbnail ? $thumbnail->AbsoluteURL : null;
+            $downloadUrl = $image->AbsoluteURL;
+            $fileSize = $image->getAbsoluteSize();
+            $width = $image->getWidth();
+            $height = $image->getHeight();
+        }
+
+        $persons = [];
+        foreach ($photo->Persons() as $person) {
+            $persons[] = [
+                'ID' => $person->ID,
+                'FirstName' => $person->FirstName,
+                'LastName' => $person->LastName,
+                'Title' => $person->getTitle(),
+            ];
+        }
+
+        return [
+            'ID' => $photo->ID,
+            'Hash' => $photo->Hash,
+            'Date' => $photo->Date,
+            'FormattedDate' => $photo->FormattedDate(),
+            'ThumbnailURL' => $thumbnailUrl,
+            'DownloadURL' => $downloadUrl,
+            'FileSize' => $fileSize,
+            'Width' => $width,
+            'Height' => $height,
+            'Persons' => $persons,
+        ];
+    }
+
+    /**
      * Create a new photo
      */
     private function createPhoto(HTTPRequest $request)
@@ -413,6 +488,13 @@ class APIController extends BaseController
     {
         $response = HTTPResponse::create();
         $response->addHeader('Content-Type', 'application/json');
+
+        // Public read endpoints have no auth and are meant to be embeddable
+        // on other sites, so allow cross-origin reads for GET requests only.
+        if ($this->getRequest() && $this->getRequest()->httpMethod() === 'GET') {
+            $response->addHeader('Access-Control-Allow-Origin', '*');
+        }
+
         $response->setStatusCode($statusCode);
         $response->setBody(json_encode($data));
         return $response;
