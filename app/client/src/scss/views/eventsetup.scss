@@ -215,4 +215,23 @@
     .camera-selector {
         position: relative;
     }
+
+    .resume-choice-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+
+        .btn-start {
+            flex: 1;
+            width: auto;
+        }
+
+        .btn-retry {
+            flex: 1;
+            width: auto;
+            margin-top: 0;
+            font-size: 1.1rem;
+            padding: 1.25rem 1.5rem;
+        }
+    }
 }

@@ -77,9 +77,13 @@
         </template>
 
         <div class="actions" v-if="!loading">
-          <button @click="goBack" class="btn-back">← Zurück</button>
+          <button @click="goBack" class="btn-back">
+            <img :src="iconBack" alt="" class="btn-back-icon" />
+            Zurück
+          </button>
           <button @click="savePhoto" class="btn-save" :disabled="saving">
-            {{ saving ? 'Speichere...' : '💾 Foto speichern' }}
+            <img :src="iconSave" alt="" class="btn-save-icon" />
+            {{ saving ? 'Speichere...' : 'Foto speichern' }}
           </button>
         </div>
       </div>
@@ -92,6 +96,9 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
 import * as faceapi from 'face-api.js';
+
+const iconSave = new URL('../../icons/action_save.svg', import.meta.url).href;
+const iconBack = new URL('../../icons/action_back.svg', import.meta.url).href;
 
 const router = useRouter();
 const store = usePhotoboxStore();

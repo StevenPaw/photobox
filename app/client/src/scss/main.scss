@@ -10,10 +10,22 @@
 @use "views/success";
 
 body {
-    background: linear-gradient(135deg, #00294C 0%, #00549e 100%);
+    position: relative;
+    background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%);
     min-height: 100dvh;
     max-width: 100dvw;
 
+    &::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url('../images/bg.jpg');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.3;
+        pointer-events: none;
+        z-index: 0;
+    }
 }
 
 .section {
@@ -25,6 +37,8 @@ body {
 }
 
 .photobox-app {
+  position: relative;
+  z-index: 1;
   min-height: 100dvh;
   max-width: 100dvw;
   overflow: hidden;

@@ -3,6 +3,28 @@
     <div class="setup-container">
       <h1>Photobox Setup</h1>
 
+      <!-- Resume Choice -->
+      <section class="setup-section" v-if="showResumeChoice">
+        <h2>Letzte Einstellungen gefunden</h2>
+        <p>
+          Event: <strong>{{ lastSettings.eventTitle }}</strong><br />
+          Kamera: <strong>{{ lastSettings.cameraLabel }}</strong>
+        </p>
+
+        <div v-if="isResuming" class="camera-loading">
+          Photobox wird gestartet...
+        </div>
+        <div v-else class="resume-choice-buttons">
+          <button @click="resumeLastSettings" class="btn-start">
+            ▶️ Fotobox weiternutzen
+          </button>
+          <button @click="reconfigure" class="btn-retry">
+            ⚙️ Fotobox umkonfigurieren
+          </button>
+        </div>
+      </section>
+
+      <template v-else>
       <!-- Event Selection -->
       <section class="setup-section">
         <h2>1. Event auswählen</h2>
@@ -105,6 +127,7 @@
           🎥 Photobox starten
         </button>
       </section>
+      </template>
     </div>
   </div>
 </template>
@@ -113,6 +136,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
+import { getCookie, setCookie } from '../../js/cookies.js';
+
+const LAST_SETTINGS_COOKIE = 'photobox_last_settings';
 
 const router = useRouter();
 const store = usePhotoboxStore();
@@ -125,6 +151,9 @@ const cameras = ref([]);
 const selectedCameraId = ref('');
 const camerasLoading = ref(false);
 const cameraError = ref('');
+const showResumeChoice = ref(false);
+const isResuming = ref(false);
+const lastSettings = ref(null);
 let mediaStream = null;
 
 // Computed
@@ -218,6 +247,15 @@ const isFilterSetSelected = (filterSetId) => {
   return eventFilterSets.value.some(fs => fs.ID === filterSetId);
 };
 
+const saveLastSettings = (event, cameraId, cameraLabel) => {
+  setCookie(LAST_SETTINGS_COOKIE, JSON.stringify({
+    eventId: event.ID,
+    eventTitle: event.Title,
+    cameraId,
+    cameraLabel,
+  }));
+};
+
 const startPhotobox = async () => {
   // Save settings to store
   const selectedEvent = events.value.find(e => e.ID == selectedEventId.value);
@@ -235,15 +273,87 @@ const startPhotobox = async () => {
     return;
   }
 
+  // Remember settings for next time
+  const selectedCamera = cameras.value.find(c => c.deviceId === selectedCameraId.value);
+  saveLastSettings(selectedEvent, selectedCameraId.value, selectedCamera?.label || '');
+
   // Navigate to camera view
+  router.push('/capture');
+};
+
+const initSetup = async () => {
+  await loadEvents();
+  await loadFilterSets();
+  // Request camera permission immediately on mount
+  await loadCameras();
+};
+
+const reconfigure = async () => {
+  showResumeChoice.value = false;
+  await initSetup();
+
+  // Prefill previous choices for convenience
+  if (lastSettings.value) {
+    const eventExists = events.value.some(e => e.ID == lastSettings.value.eventId);
+    if (eventExists) {
+      selectedEventId.value = String(lastSettings.value.eventId);
+      await onEventChange();
+      const cameraExists = cameras.value.some(c => c.deviceId === lastSettings.value.cameraId);
+      if (cameraExists) {
+        selectedCameraId.value = lastSettings.value.cameraId;
+      }
+    }
+  }
+};
+
+const resumeLastSettings = async () => {
+  isResuming.value = true;
+
+  events.value = await store.fetchEvents();
+  const selectedEvent = events.value.find(e => e.ID == lastSettings.value.eventId);
+  if (!selectedEvent) {
+    alert('Das zuletzt verwendete Event ist nicht mehr verfügbar.');
+    isResuming.value = false;
+    showResumeChoice.value = false;
+    await initSetup();
+    return;
+  }
+
+  store.setEvent(selectedEvent);
+  store.setCamera(lastSettings.value.cameraId);
+
+  await store.loadFiltersForEvent(selectedEvent.ID);
+
+  try {
+    await store.initCamera();
+  } catch (error) {
+    alert('Kamera-Zugriff fehlgeschlagen. Bitte Berechtigungen prüfen.');
+    isResuming.value = false;
+    showResumeChoice.value = false;
+    await initSetup();
+    return;
+  }
+
+  saveLastSettings(selectedEvent, lastSettings.value.cameraId, lastSettings.value.cameraLabel);
   router.push('/capture');
 };
 
 // Lifecycle
 onMounted(async () => {
-  await loadEvents();
-  await loadFilterSets();
-  // Request camera permission immediately on mount
-  await loadCameras();
+  const cookieRaw = getCookie(LAST_SETTINGS_COOKIE);
+  if (cookieRaw) {
+    try {
+      const parsed = JSON.parse(cookieRaw);
+      if (parsed && parsed.eventId && parsed.cameraId) {
+        lastSettings.value = parsed;
+        showResumeChoice.value = true;
+        return;
+      }
+    } catch (error) {
+      console.error('Ungültiges Einstellungs-Cookie:', error);
+    }
+  }
+
+  await initSetup();
 });
 </script>

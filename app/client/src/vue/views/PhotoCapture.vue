@@ -22,20 +22,28 @@
             class="nav-btn nav-btn-left"
             :disabled="!hasFilters"
           >
-            ‹
+            <img :src="iconBack" alt="Vorheriger Filter" />
           </button>
           <button
             @click="nextFilter"
             class="nav-btn nav-btn-right"
             :disabled="!hasFilters"
           >
-            ›
+            <img :src="iconNext" alt="Nächster Filter" />
           </button>
         </div>
 
         <!-- Countdown Display -->
         <div v-if="countdown > 0" class="countdown">
-          {{ countdown }}
+          <svg class="countdown-ring" viewBox="0 0 120 120">
+            <circle class="countdown-ring-bg" cx="60" cy="60" r="54" />
+            <circle
+              class="countdown-ring-fill"
+              cx="60" cy="60" r="54"
+              :style="{ strokeDasharray: ringCircumference, strokeDashoffset: ringOffset }"
+            />
+          </svg>
+          <span class="countdown-number">{{ countdown }}</span>
         </div>
       </div>
 
@@ -46,7 +54,8 @@
           class="btn-capture"
           :disabled="capturing || countdown > 0"
         >
-          {{ capturing ? 'Aufnahme läuft...' : '📸 Foto aufnehmen' }}
+          <img :src="iconCamera" alt="" class="btn-capture-icon" />
+          {{ capturing ? 'Aufnahme läuft...' : 'Foto aufnehmen' }}
         </button>
       </div>
     </div>
@@ -54,15 +63,24 @@
     <!-- Photo Review -->
     <div class="photo-review" v-else>
       <div class="review-container">
-        <h2>Aufgenommenes Foto</h2>
+        <h2>Sieht gut aus!</h2>
         <img :src="capturedImage" alt="Captured Photo" class="captured-photo" />
 
         <div class="review-actions">
-          <button @click="retakePhoto" class="btn-retake">🔄 Erneut aufnehmen</button>
-          <button @click="continueToPersonSelection" class="btn-continue">✓ Weiter</button>
+          <button @click="retakePhoto" class="btn-retake">
+            <img :src="iconRedo" alt="" class="btn-retake-icon" />
+            Erneut aufnehmen
+          </button>
+          <button @click="continueToPersonSelection" class="btn-continue">
+            Weiter
+            <img :src="iconNext" alt="" class="btn-continue-icon" />
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Camera Flash -->
+    <div class="camera-flash" :class="{ active: flashActive }"></div>
 
     <!-- Hidden Canvas for Capture -->
     <canvas ref="canvasElement" style="display: none;"></canvas>
@@ -73,6 +91,10 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
+const iconBack = new URL('../../icons/action_back.svg', import.meta.url).href;
+const iconNext = new URL('../../icons/action_next.svg', import.meta.url).href;
+const iconCamera = new URL('../../icons/action_camera.svg', import.meta.url).href;
+const iconRedo = new URL('../../icons/action_redo.svg', import.meta.url).href;
 
 const router = useRouter();
 const store = usePhotoboxStore();
@@ -81,7 +103,15 @@ const videoElement = ref(null);
 const canvasElement = ref(null);
 const capturedImage = ref(null);
 const countdown = ref(0);
+const countdownProgress = ref(0);
 const capturing = ref(false);
+const flashActive = ref(false);
+let countdownRafId = null;
+
+const COUNTDOWN_SECONDS = 3;
+const RING_RADIUS = 54;
+const ringCircumference = 2 * Math.PI * RING_RADIUS;
+const ringOffset = computed(() => ringCircumference * (1 - countdownProgress.value / 100));
 
 // Computed
 const currentFilter = computed(() => store.currentFilter);
@@ -134,16 +164,43 @@ const startCountdown = () => {
   if (capturing.value) return;
 
   capturing.value = true;
-  countdown.value = 3;
+  countdown.value = COUNTDOWN_SECONDS;
+  countdownProgress.value = 0;
 
-  const countdownInterval = setInterval(() => {
-    countdown.value--;
+  const durationMs = COUNTDOWN_SECONDS * 1000;
+  const startTime = performance.now();
 
-    if (countdown.value === 0) {
-      clearInterval(countdownInterval);
-      capturePhoto();
+  const tick = (now) => {
+    const elapsed = now - startTime;
+
+    if (elapsed >= durationMs) {
+      countdown.value = 0;
+      countdownProgress.value = 100;
+      countdownRafId = null;
+      triggerFlash();
+      return;
     }
-  }, 1000);
+
+    countdown.value = Math.ceil((durationMs - elapsed) / 1000);
+    countdownProgress.value = (elapsed / durationMs) * 100;
+    countdownRafId = requestAnimationFrame(tick);
+  };
+
+  countdownRafId = requestAnimationFrame(tick);
+};
+
+const triggerFlash = () => {
+  flashActive.value = true;
+
+  // Capture the frame right at the peak of the flash
+  setTimeout(() => {
+    capturePhoto();
+  }, 100);
+
+  // Fade the flash back out shortly after
+  setTimeout(() => {
+    flashActive.value = false;
+  }, 250);
 };
 
 const capturePhoto = () => {
@@ -280,6 +337,9 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  if (countdownRafId !== null) {
+    cancelAnimationFrame(countdownRafId);
+  }
   // Don't stop camera on unmount - keep it running
   // Camera will only be stopped when going back to setup or on page unload
 });
