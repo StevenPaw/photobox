@@ -1,0 +1,302 @@
+.gallery-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4dvh 4dvw;
+    z-index: 200;
+}
+
+.gallery-popup {
+    width: 100%;
+    max-width: 1100px;
+    height: 90dvh;
+    background: rgba(40, 40, 40, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: white;
+}
+
+.gallery-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    h2 {
+        margin: 0;
+        font-size: 1.4rem;
+    }
+}
+
+.close-ring-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.close-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+}
+
+.close-ring-bg,
+.close-ring-fill {
+    fill: none;
+    stroke-width: 2;
+}
+
+.close-ring-bg {
+    stroke: rgba(255, 255, 255, 0.15);
+}
+
+.close-ring-fill {
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s ease-out;
+}
+
+.gallery-close {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.gallery-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    align-content: start;
+    gap: 12px;
+    padding: 20px 15px 10px 20px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 8px;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+    }
+}
+
+.gallery-empty,
+.gallery-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem 1rem;
+    opacity: 0.7;
+}
+
+.gallery-sentinel {
+    grid-column: 1 / -1;
+    height: 1px;
+}
+
+.gallery-item {
+    // No aspect-ratio here on purpose: the grid's row auto-sizing can't
+    // reliably resolve an aspect-ratio-derived height (it depends on the
+    // column width, which the row-sizing pass may not have settled yet),
+    // which is what caused the overlap. The square shape is instead
+    // forced by .gallery-item-inner's padding-top trick below, which only
+    // depends on the item's own (already-resolved) width.
+    width: 100%;
+    justify-self: stretch;
+    border: none;
+    border-radius: 10px;
+    padding: 0;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s;
+    display: block;
+
+    &:hover {
+        transform: scale(1.03);
+    }
+}
+
+.gallery-item-inner {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding-top: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+
+    img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+}
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+}
+
+.lightbox-image-wrapper {
+    position: relative;
+    display: inline-block;
+    max-width: 85dvw;
+    max-height: 85dvh;
+    line-height: 0;
+}
+
+.lightbox-image {
+    display: block;
+    max-width: 85dvw;
+    max-height: 85dvh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-qr {
+    position: absolute;
+    right: calc(-30% - 20px);
+    bottom: 0;
+    width: 220px;
+    aspect-ratio: 1 / 1;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+
+    canvas {
+        display: block;
+        width: 200px;
+        height: 200px;
+    }
+}
+
+.lightbox-close-wrap {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 52px;
+    height: 52px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 50%;
+        height: 50%;
+        object-fit: contain;
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+
+    img {
+        width: 50%;
+        height: 50%;
+        object-fit: contain;
+    }
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%) scale(1.08);
+    }
+
+    &:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+}
+
+.lightbox-prev {
+    left: 1.5rem;
+}
+
+.lightbox-next {
+    right: 1.5rem;
+}

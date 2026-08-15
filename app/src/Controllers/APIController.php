@@ -339,15 +339,26 @@ class APIController extends BaseController
             return $this->jsonResponse(['error' => 'Event not found'], 404);
         }
 
+        $limit = (int)$request->getVar('limit') ?: 24;
+        $limit = max(1, min($limit, 100));
+        $offset = max(0, (int)$request->getVar('offset'));
+
+        $photos = $event->Photos()->filter('ImageID:GreaterThan', 0);
+        $total = $photos->count();
+
         $data = [];
-        foreach ($event->Photos() as $photo) {
+        foreach ($photos->limit($limit, $offset) as $photo) {
             if (!$photo->Image()->exists()) {
                 continue;
             }
             $data[] = $this->formatPhoto($photo);
         }
 
-        return $this->jsonResponse($data);
+        return $this->jsonResponse([
+            'photos' => $data,
+            'total' => $total,
+            'hasMore' => ($offset + count($data)) < $total,
+        ]);
     }
 
     /**

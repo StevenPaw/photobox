@@ -76,6 +76,11 @@ export const usePhotoboxStore = defineStore('photobox', {
             return await response.json();
         },
 
+        async fetchEventPhotos(eventHash, { limit = 24, offset = 0 } = {}) {
+            const response = await fetch(`/api/events/${eventHash}/photos?limit=${limit}&offset=${offset}`);
+            return await response.json();
+        },
+
         async savePhoto(eventId, imageData, personIds = [], customPersonNames = []) {
             const response = await fetch('/api/photos', {
                 method: 'POST',

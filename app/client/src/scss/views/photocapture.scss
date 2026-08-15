@@ -68,7 +68,7 @@
         top: 50%;
         transform: translateY(-50%);
         min-width: 60px;
-        width: 10dvw;
+        width: 7dvw;
         aspect-ratio: 1 / 1;
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
@@ -218,17 +218,31 @@
     }
 
     .controls {
+        position: relative;
         display: flex;
-        gap: 1rem;
-        justify-content: center;
+        width: fit-content;
+        margin: -30px auto 0;
+
+        // Gallery button is taken out of flow (and out of the width
+        // calculation below) so it can't push the shutter button
+        // off-center; it's pinned just outside its left edge instead.
+        > .base-button {
+            position: absolute;
+            right: calc(100% + 1rem);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+
+            &:hover {
+                transform: translateY(-50%) scale(1.05);
+            }
+        }
     }
 
     .btn-back,
-    .btn-capture,
-    .btn-retake,
-    .btn-continue {
-        padding: 1rem 2rem;
-        font-size: 1.2rem;
+    .btn-capture {
+        padding: 10px 20px;
+        font-size: 12px;
         font-weight: 600;
         border: none;
         border-radius: 12px;
@@ -249,17 +263,31 @@
     .btn-capture {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        flex: 1;
-        max-width: 400px;
+        // Fixed width so the aspect-ratio-derived height can't shift when
+        // the button's text changes on click ("Foto aufnehmen" ->
+        // "Aufnahme läuft..."), which otherwise nudges the whole
+        // vertically-centered layout up/down by a couple of pixels.
+        width: 15dvh;
         box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        gap: 5px;
+        z-index: 10;
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 200;
+        padding: 10px 10px 15px 10px;
 
         &:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+
+            .btn-capture-icon {
+                transform: scale(1.05);
+            }
         }
 
         &:disabled {
@@ -269,8 +297,10 @@
     }
 
     .btn-capture-icon {
-        width: 1.6rem;
-        height: 1.6rem;
+        height: 70%;
+        margin-bottom: -5px;
+        transition: transform 0.3s;
+        transform-origin: bottom center;
     }
 
     .photo-review {
@@ -331,40 +361,6 @@
         justify-content: center;
     }
 
-    .btn-retake,
-    .btn-continue {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-
-    .btn-retake-icon,
-    .btn-continue-icon {
-        width: 1.3rem;
-        height: 1.3rem;
-    }
-
-    .btn-retake {
-        background: #6b7280;
-        color: white;
-
-        &:hover {
-            background: #4b5563;
-            transform: translateY(-2px);
-        }
-    }
-
-    .btn-continue {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-        }
-    }
 }
 
 @keyframes imageFallIn {

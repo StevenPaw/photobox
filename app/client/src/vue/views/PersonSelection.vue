@@ -20,6 +20,7 @@
 
         <template v-else>
           <div class="person-search">
+            <img :src="iconSearch" alt="" class="search-icon" />
             <input
               v-model="searchQuery"
               type="text"
@@ -30,9 +31,9 @@
 
           <div v-if="persons.length === 0 && !searchQuery.trim()" class="no-persons">
             <p>Keine Personen für dieses Event verfügbar.</p>
-            <button @click="skipPersonSelection" class="btn-skip">
+            <BaseButton variant="secondary" @click="skipPersonSelection">
               Ohne Personen-Auswahl fortfahren
-            </button>
+            </BaseButton>
           </div>
 
           <div v-else class="persons-grid">
@@ -65,7 +66,9 @@
               :class="['person-card', 'person-card--new', { selected: isCustomSelected(newPersonName) }]"
             >
               <div class="person-image">
-                <div class="person-placeholder person-placeholder--new">＋</div>
+                <div class="person-placeholder person-placeholder--new">
+                  <span class="add-icon" :style="{ '-webkit-mask-image': `url(${iconAdd})`, maskImage: `url(${iconAdd})` }"></span>
+                </div>
               </div>
               <div class="person-name">
                 {{ newPersonName }}
@@ -77,14 +80,12 @@
         </template>
 
         <div class="actions" v-if="!loading">
-          <button @click="goBack" class="btn-back">
-            <img :src="iconBack" alt="" class="btn-back-icon" />
+          <BaseButton variant="secondary" :icon="iconBack" @click="goBack">
             Zurück
-          </button>
-          <button @click="savePhoto" class="btn-save" :disabled="saving">
-            <img :src="iconSave" alt="" class="btn-save-icon" />
+          </BaseButton>
+          <BaseButton variant="primary" :icon="iconSave" class="grow" :disabled="saving" @click="savePhoto">
             {{ saving ? 'Speichere...' : 'Foto speichern' }}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -96,9 +97,12 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
 import * as faceapi from 'face-api.js';
+import BaseButton from '../components/BaseButton.vue';
 
 const iconSave = new URL('../../icons/action_save.svg', import.meta.url).href;
 const iconBack = new URL('../../icons/action_back.svg', import.meta.url).href;
+const iconSearch = new URL('../../icons/action_search.svg', import.meta.url).href;
+const iconAdd = new URL('../../icons/action_add.svg', import.meta.url).href;
 
 const router = useRouter();
 const store = usePhotoboxStore();
@@ -117,8 +121,10 @@ const selectedCustomNames = ref([]);
 
 const filteredPersons = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();
-  if (!q) return persons.value;
-  return persons.value.filter(p => p.Title.toLowerCase().includes(q));
+  const filtered = q
+    ? persons.value.filter(p => p.Title.toLowerCase().includes(q))
+    : persons.value;
+  return [...filtered].sort((a, b) => a.Title.localeCompare(b.Title, 'de'));
 });
 
 const newPersonName = computed(() => {

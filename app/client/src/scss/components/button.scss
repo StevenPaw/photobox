@@ -1,0 +1,52 @@
+.base-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &.icon-right {
+        flex-direction: row;
+    }
+
+    .base-button-icon {
+        width: 1.3rem;
+        height: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    &.primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+
+        &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+    }
+
+    &.secondary {
+        background: #6b7280;
+
+        &:hover:not(:disabled) {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &.grow {
+        flex: 1;
+    }
+}

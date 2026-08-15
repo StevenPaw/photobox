@@ -15,12 +15,12 @@
           Photobox wird gestartet...
         </div>
         <div v-else class="resume-choice-buttons">
-          <button @click="resumeLastSettings" class="btn-start">
+          <BaseButton variant="primary" @click="resumeLastSettings">
             ▶️ Fotobox weiternutzen
-          </button>
-          <button @click="reconfigure" class="btn-retry">
+          </BaseButton>
+          <BaseButton variant="secondary" @click="reconfigure">
             ⚙️ Fotobox umkonfigurieren
-          </button>
+          </BaseButton>
         </div>
       </section>
 
@@ -94,9 +94,9 @@
 
         <div v-else-if="cameraError" class="camera-error">
           <p>⚠️ {{ cameraError }}</p>
-          <button @click="requestCameraPermission" class="btn-retry">
+          <BaseButton variant="secondary" @click="requestCameraPermission">
             🔄 Berechtigung erneut anfordern
-          </button>
+          </BaseButton>
         </div>
 
         <div v-else class="camera-selector">
@@ -111,21 +111,21 @@
             Keine Kameras gefunden. Bitte stelle sicher, dass eine Kamera angeschlossen ist.
           </p>
 
-          <button
+          <BaseButton
             v-if="cameras.length === 0"
+            variant="secondary"
             @click="requestCameraPermission"
-            class="btn-refresh"
           >
             🔄 Kameras neu laden
-          </button>
+          </BaseButton>
         </div>
       </section>
 
       <!-- Start Button -->
       <section class="setup-section" v-if="canStart">
-        <button @click="startPhotobox" class="btn-start">
+        <BaseButton variant="primary" class="btn-start-cta" @click="startPhotobox">
           🎥 Photobox starten
-        </button>
+        </BaseButton>
       </section>
       </template>
     </div>
@@ -137,6 +137,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
 import { getCookie, setCookie } from '../../js/cookies.js';
+import BaseButton from '../components/BaseButton.vue';
 
 const LAST_SETTINGS_COOKIE = 'photobox_last_settings';
 

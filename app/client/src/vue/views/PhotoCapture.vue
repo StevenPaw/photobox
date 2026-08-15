@@ -49,6 +49,10 @@
 
       <!-- Controls -->
       <div class="controls">
+        <BaseButton variant="secondary" :icon="iconGallery" @click="showGallery = true">
+          Galerie
+        </BaseButton>
+
         <button
           @click="startCountdown"
           class="btn-capture"
@@ -67,20 +71,20 @@
         <img :src="capturedImage" alt="Captured Photo" class="captured-photo" />
 
         <div class="review-actions">
-          <button @click="retakePhoto" class="btn-retake">
-            <img :src="iconRedo" alt="" class="btn-retake-icon" />
+          <BaseButton variant="secondary" :icon="iconRedo" @click="retakePhoto">
             Erneut aufnehmen
-          </button>
-          <button @click="continueToPersonSelection" class="btn-continue">
+          </BaseButton>
+          <BaseButton variant="primary" :icon="iconNext" icon-position="right" @click="continueToPersonSelection">
             Weiter
-            <img :src="iconNext" alt="" class="btn-continue-icon" />
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
 
     <!-- Camera Flash -->
     <div class="camera-flash" :class="{ active: flashActive }"></div>
+
+    <PhotoGallery v-model="showGallery" :event-hash="store.selectedEvent?.Hash" />
 
     <!-- Hidden Canvas for Capture -->
     <canvas ref="canvasElement" style="display: none;"></canvas>
@@ -91,14 +95,18 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
+import BaseButton from '../components/BaseButton.vue';
+import PhotoGallery from '../components/PhotoGallery.vue';
 const iconBack = new URL('../../icons/action_back.svg', import.meta.url).href;
 const iconNext = new URL('../../icons/action_next.svg', import.meta.url).href;
 const iconCamera = new URL('../../icons/action_camera.svg', import.meta.url).href;
 const iconRedo = new URL('../../icons/action_redo.svg', import.meta.url).href;
+const iconGallery = new URL('../../icons/action_gallery.svg', import.meta.url).href;
 
 const router = useRouter();
 const store = usePhotoboxStore();
 
+const showGallery = ref(false);
 const videoElement = ref(null);
 const canvasElement = ref(null);
 const capturedImage = ref(null);

@@ -73,7 +73,21 @@
         gap: 1rem;
     }
 
-    .btn-another,
+    .auto-restart-hint {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    .auto-restart-extend {
+        color: inherit;
+        text-decoration: underline;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
     .btn-setup {
         padding: 1rem 2rem;
         font-size: 1.1rem;
@@ -82,20 +96,6 @@
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s;
-    }
-
-    .btn-another {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-    }
-
-    .btn-setup {
         background: transparent;
         color: #6b7280;
         border: 2px solid #d1d5db;

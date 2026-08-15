@@ -11,23 +11,34 @@
       </div>
 
       <div class="actions">
-        <button @click="takeAnother" class="btn-another">
-          📸 Weiteres Foto aufnehmen
-        </button>
+        <BaseButton variant="primary" :icon="iconCamera" @click="takeAnother">
+          Weiteres Foto aufnehmen
+        </BaseButton>
+        <p class="auto-restart-hint">
+          Auto-Neustart in {{ autoRestartSeconds }}...
+          <a href="#" class="auto-restart-extend" @click.prevent="extendAutoRestart">verlängern</a>
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePhotoboxStore } from '../store.js';
 import QRCode from 'qrcode';
+import BaseButton from '../components/BaseButton.vue';
+
+const iconCamera = new URL('../../icons/action_camera.svg', import.meta.url).href;
+
+const AUTO_RESTART_SECONDS = 60;
 
 const router = useRouter();
 const store = usePhotoboxStore();
 const qrCanvas = ref(null);
+const autoRestartSeconds = ref(AUTO_RESTART_SECONDS);
+let autoRestartInterval = null;
 
 const downloadURL = computed(() => {
   if (!store.savedPhotoHash) return null;
@@ -65,8 +76,33 @@ const goToSetup = () => {
   router.push('/');
 };
 
+const startAutoRestart = () => {
+  autoRestartSeconds.value = AUTO_RESTART_SECONDS;
+
+  autoRestartInterval = setInterval(() => {
+    autoRestartSeconds.value--;
+
+    if (autoRestartSeconds.value <= 0) {
+      clearInterval(autoRestartInterval);
+      autoRestartInterval = null;
+      takeAnother();
+    }
+  }, 1000);
+};
+
+const extendAutoRestart = () => {
+  autoRestartSeconds.value = AUTO_RESTART_SECONDS;
+};
+
 onMounted(() => {
   generateQRCode();
+  startAutoRestart();
+});
+
+onUnmounted(() => {
+  if (autoRestartInterval) {
+    clearInterval(autoRestartInterval);
+  }
 });
 </script>
 
