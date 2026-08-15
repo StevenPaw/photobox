@@ -15,8 +15,9 @@
         }
 
         body {
+            position: relative;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -24,25 +25,67 @@
             padding: 2rem;
         }
 
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url('/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .download-container {
-            background: white;
+            position: relative;
+            z-index: 1;
+            background: rgba(40, 40, 40, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 3rem;
             max-width: 600px;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
             text-align: center;
+            color: white;
         }
 
-        .event-title {
-            color: #667eea;
-            font-size: 1.2rem;
-            font-weight: 600;
+        .event-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.6rem;
             margin-bottom: 0.5rem;
         }
 
+        .event-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .event-link-btn {
+            display: inline-block;
+            padding: 0.3rem 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .event-link-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .photo-date {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
             margin-bottom: 2rem;
         }
@@ -50,8 +93,8 @@
         .photo-preview {
             width: 100%;
             border-radius: 16px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .download-section {
@@ -59,29 +102,33 @@
         }
 
         .download-btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             padding: 1rem 3rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             text-decoration: none;
             border-radius: 12px;
             font-size: 1.1rem;
             font-weight: 600;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
 
         .download-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
         }
 
         .download-icon {
-            margin-right: 0.5rem;
+            width: 1.3rem;
+            height: 1.3rem;
         }
 
         .info-text {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
             margin-top: 1.5rem;
             line-height: 1.5;
@@ -97,7 +144,7 @@
         }
 
         .not-found p {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         @media (max-width: 640px) {
@@ -119,7 +166,16 @@
 <body>
     <div class="download-container">
         <% if $Photo %>
-            <div class="event-title">📸 {$EventTitle}</div>
+            <div class="event-header">
+                <span class="event-title">{$EventTitle}</span>
+                <% if $EventLink %>
+                    <% with $EventLink %>
+                        <% if $exists %>
+                            <a href="{$URL}" <% if $OpenInNew %>target="_blank" rel="noopener noreferrer"<% end_if %> class="event-link-btn">{$Title}</a>
+                        <% end_if %>
+                    <% end_with %>
+                <% end_if %>
+            </div>
             <div class="photo-date">{$PhotoDate} Uhr</div>
 
             <% if $ImageURL %>
@@ -127,7 +183,7 @@
 
                 <div class="download-section">
                     <a href="{$DownloadURL}" download="foto-{$Photo.Hash}.jpg" class="download-btn">
-                        <span class="download-icon">⬇️</span>
+                        <img src="/action_download.svg" alt="" class="download-icon">
                         Foto herunterladen
                     </a>
 

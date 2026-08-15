@@ -41,11 +41,14 @@ class PhotoDownloadController extends BaseController
             return $this->httpError(404, 'Foto nicht gefunden');
         }
 
+        $event = $photo->Parent()->exists() ? $photo->Parent() : null;
+
         return [
             'Photo' => $photo,
             'ImageURL' => $photo->Image()->exists() ? $photo->Image()->AbsoluteURL : null,
             'DownloadURL' => $photo->Image()->exists() ? $photo->Image()->AbsoluteURL : null,
-            'EventTitle' => $photo->Parent()->exists() ? $photo->Parent()->Title : 'Event',
+            'EventTitle' => $event ? $event->Title : 'Event',
+            'EventLink' => $event ? $event->EventLink() : null,
             'PhotoDate' => $photo->dbObject('Date')->Format('dd.MM.yyyy HH:mm'),
         ];
     }

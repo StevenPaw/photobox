@@ -8,6 +8,7 @@ use SilverStripe\Forms\GridField\GridFieldExportButton;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Permission;
+use SilverStripe\LinkField\Models\Link;
 
 /**
  * Class \App\Models\Event
@@ -16,11 +17,14 @@ use SilverStripe\Security\Permission;
  * @property ?string $Hash
  * @property ?string $EventDate
  * @property bool $UsePersonRecognition
+ * @property int $EventLinkID
+ * @method \SilverStripe\LinkField\Models\Link EventLink()
  * @method \SilverStripe\ORM\DataList|\App\Models\Photo[] Photos()
  * @method \SilverStripe\ORM\DataList|\App\Models\Person[] Persons()
  * @method \SilverStripe\ORM\ManyManyList|\App\Models\FilterSet[] UsedFilterSet()
  * @mixin \SilverStripe\Assets\Shortcodes\FileLinkTracking
  * @mixin \SilverStripe\Assets\AssetControlExtension
+ * @mixin \SilverStripe\CMS\Model\SiteTreeLinkTracking
  * @mixin \SilverStripe\Versioned\RecursivePublishable
  * @mixin \SilverStripe\Versioned\VersionedStateExtension
  */
@@ -30,7 +34,11 @@ class Event extends DataObject
         'Title' => 'Varchar(255)',
         'Hash' => 'Varchar(255)',
         'EventDate' => 'Date',
-        'UsePersonRecognition' => 'Boolean',
+        'UsePersonRecognition' => 'Boolean'
+    ];
+
+    private static $has_one = [
+        'EventLink' => Link::class,
     ];
 
     private static $has_many = [
@@ -44,11 +52,13 @@ class Event extends DataObject
 
     private static $owns = [
         'Photos',
+        'EventLink',
     ];
 
     private static $cascade_deletes = [
         'Photos',
         'Persons',
+        'EventLink',
     ];
 
     private static $summary_fields = [
@@ -62,6 +72,13 @@ class Event extends DataObject
     {
         $fields = parent::getCMSFields();
         $fields->removeByName('Photos');
+
+        $eventLinkField = $fields->dataFieldByName('EventLink');
+        if ($eventLinkField) {
+            $eventLinkField->setTitle('Link')
+                ->setDescription('Optional. Wird als kleiner Button neben dem Event-Namen auf der Foto-Download-Seite angezeigt.');
+        }
+
         $gridfieldConfig = GridFieldConfig_RelationEditor::create();
         $gridfield = GridField::create(
             'Photos',
