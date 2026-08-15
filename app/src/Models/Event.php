@@ -1,9 +1,12 @@
 <?php
 namespace App\Models;
 
+use App\Forms\GridFieldPersonImportButton;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
+use SilverStripe\Forms\GridField\GridFieldExportButton;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DB;
 use SilverStripe\Security\Permission;
 
 /**
@@ -67,6 +70,23 @@ class Event extends DataObject
             $gridfieldConfig
         );
         $fields->addFieldToTab('Root.Main', $gridfield);
+
+        // Add CSV export/import for this event's Persons, so a guest list
+        // can be prepared/edited outside the CMS and (re-)imported here.
+        $personsField = $fields->dataFieldByName('Persons');
+        if ($personsField && $personsField->getConfig()) {
+            $personsConfig = $personsField->getConfig();
+            $personsConfig->addComponent(new GridFieldExportButton('buttons-before-left', [
+                'FirstName' => 'FirstName',
+                'LastName' => 'LastName',
+            ]));
+
+            // Importing needs a saved Event to attach the Persons to
+            if ($this->exists()) {
+                $personsConfig->addComponent(new GridFieldPersonImportButton($this->ID, 'buttons-before-left'));
+            }
+        }
+
         return $fields;
     }
 
@@ -76,6 +96,40 @@ class Event extends DataObject
         if (!$this->Hash) {
             $this->Hash = md5(uniqid($this->Title, true));
         }
+    }
+
+    protected function onAfterWrite()
+    {
+        parent::onAfterWrite();
+        $this->removeOrphanedPhotoPersonRelations();
+    }
+
+    /**
+     * Removes stale Photo<->Person many_many rows left behind when a Person
+     * was removed but a Photo still references it (e.g. via CSV re-import
+     * replacing the guest list, or manual deletion in the CMS).
+     */
+    private function removeOrphanedPhotoPersonRelations()
+    {
+        $photoIDs = $this->Photos()->column('ID');
+        if (empty($photoIDs)) {
+            return;
+        }
+
+        $schema = DataObject::getSchema();
+        $relation = $schema->manyManyComponent(Photo::class, 'Persons');
+        if (!$relation) {
+            return;
+        }
+
+        DB::query(sprintf(
+            'DELETE FROM "%s" WHERE "%s" IN (%s) AND "%s" NOT IN (SELECT "ID" FROM "%s")',
+            $relation['join'],
+            $relation['parentField'],
+            implode(',', array_map('intval', $photoIDs)),
+            $relation['childField'],
+            $schema->tableName(Person::class)
+        ));
     }
 
     public function FormattedDate()
