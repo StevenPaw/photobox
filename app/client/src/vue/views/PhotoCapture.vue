@@ -49,7 +49,7 @@
 
       <!-- Controls -->
       <div class="controls">
-        <BaseButton variant="secondary" :icon="iconGallery" @click="showGallery = true">
+        <BaseButton v-if="showGalleryButton" variant="secondary" :icon="iconGallery" @click="showGallery = true">
           Galerie
         </BaseButton>
 
@@ -124,6 +124,7 @@ const ringOffset = computed(() => ringCircumference * (1 - countdownProgress.val
 // Computed
 const currentFilter = computed(() => store.currentFilter);
 const hasFilters = computed(() => store.hasFilters);
+const showGalleryButton = computed(() => store.selectedEvent?.ShowGallery !== false);
 
 const currentFilterStyles = computed(() => {
   if (!currentFilter.value || !currentFilter.value.CSSStyles) {

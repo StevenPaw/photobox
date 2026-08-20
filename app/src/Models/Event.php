@@ -17,6 +17,7 @@ use SilverStripe\LinkField\Models\Link;
  * @property ?string $Hash
  * @property ?string $EventDate
  * @property bool $UsePersonRecognition
+ * @property bool $ShowGallery
  * @property int $EventLinkID
  * @method \SilverStripe\LinkField\Models\Link EventLink()
  * @method \SilverStripe\ORM\DataList|\App\Models\Photo[] Photos()
@@ -34,7 +35,12 @@ class Event extends DataObject
         'Title' => 'Varchar(255)',
         'Hash' => 'Varchar(255)',
         'EventDate' => 'Date',
-        'UsePersonRecognition' => 'Boolean'
+        'UsePersonRecognition' => 'Boolean',
+        'ShowGallery' => 'Boolean',
+    ];
+
+    private static $defaults = [
+        'ShowGallery' => true,
     ];
 
     private static $has_one = [
@@ -77,6 +83,12 @@ class Event extends DataObject
         if ($eventLinkField) {
             $eventLinkField->setTitle('Link')
                 ->setDescription('Optional. Wird als kleiner Button neben dem Event-Namen auf der Foto-Download-Seite angezeigt.');
+        }
+
+        $showGalleryField = $fields->dataFieldByName('ShowGallery');
+        if ($showGalleryField) {
+            $showGalleryField->setTitle('Galerie anzeigen')
+                ->setDescription('Wenn aktiviert, kann in der Fotobox über den Galerie-Button auf bereits aufgenommene Fotos dieses Events zugegriffen werden.');
         }
 
         $gridfieldConfig = GridFieldConfig_RelationEditor::create();

@@ -128,6 +128,7 @@ class APIController extends BaseController
                 'EventDate' => $event->EventDate,
                 'FormattedDate' => $event->FormattedDate(),
                 'UsePersonRecognition' => (bool)$event->UsePersonRecognition,
+                'ShowGallery' => (bool)$event->ShowGallery,
             ];
         }
 
@@ -150,6 +151,8 @@ class APIController extends BaseController
             'Hash' => $event->Hash,
             'EventDate' => $event->EventDate,
             'FormattedDate' => $event->FormattedDate(),
+            'UsePersonRecognition' => (bool)$event->UsePersonRecognition,
+            'ShowGallery' => (bool)$event->ShowGallery,
         ]);
     }
 
